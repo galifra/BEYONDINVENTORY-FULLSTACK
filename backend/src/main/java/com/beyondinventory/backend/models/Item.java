@@ -10,18 +10,20 @@ public class Item {
     private Long id;
 
     private String name;
+
+    @ManyToOne
+    @JoinColumn(name = "location_id") // foreign key column in "item" table
+    private Location location;
+
     private String description;
-    private String location;
 
     public Item() {}
 
-    public Item(String name, String description, String location) {
+    public Item(String name, Location location, String description) {
         this.name = name;
-        this.description = description;
         this.location = location;
+        this.description = description;
     }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -35,19 +37,19 @@ public class Item {
         this.name = name;
     }
 
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 }
