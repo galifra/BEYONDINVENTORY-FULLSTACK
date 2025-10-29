@@ -41,5 +41,30 @@ public class ItemController {
         Item newItem = new Item(request.name, location, request.description);
 
         return itemRepository.save(newItem);
+
     }
+    // DELETE: Remove an item by its ID
+    @DeleteMapping("/{id}")
+    public void deleteItem(@PathVariable Long id) {
+        itemRepository.deleteById(id);
+    }
+
+    // PUT: Update an existing item
+    @PutMapping("/{id}")
+    public Item updateItem(@PathVariable Long id, @RequestBody CreateItemRequest request) {
+
+        Item existingItem = itemRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Item not found"));
+
+        Location location = locationRepository.findById(request.locationId)
+                .orElseThrow(() -> new RuntimeException("Location not found"));
+
+        existingItem.setName(request.name);
+        existingItem.setDescription(request.description);
+        existingItem.setLocation(location);
+
+        return itemRepository.save(existingItem);
+    }
+
+
 }
