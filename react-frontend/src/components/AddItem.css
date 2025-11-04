@@ -1,0 +1,52 @@
+.add-item {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: #6a4cc8aa;
+  border: 1px solid #090a0f;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.add-item h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #2d3748;
+  text-align: center;
+}
+
+.add-item form {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-item input,
+.add-item textarea {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.add-item input:focus,
+.add-item textarea:focus {
+  border-color: #3182ce;
+}
+
+.add-item button {
+  padding: 0.75rem;
+  font-size: 1rem;
+  color: white;
+  background-color: #3182ce;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.add-item button:hover {
+  background-color: #2b6cb0;
+}

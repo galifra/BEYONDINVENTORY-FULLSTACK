@@ -1,0 +1,40 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #0b0c2a; /* deep space navy */
+  color: #e0e8f9; /* soft star white */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+}
+
+#root {
+  flex: 1 0 auto; /* allow root to fill available height */
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1 0 auto; /* grow to fill space pushing footer down */
+  padding-bottom: 1rem; /* optional padding */
+}
+
+footer {
+  flex-shrink: 0; /* prevent footer from shrinking */
+}
+
+a {
+  color: #a66bbe; /* nebula purple */
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #d1a9e5; /* lighter purple on hover */
+}
