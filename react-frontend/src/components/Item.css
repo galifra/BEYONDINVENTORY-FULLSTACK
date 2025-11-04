@@ -1,0 +1,51 @@
+.item-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: flex-start; /* cards align from the top, so taller cards won't stretch shorter ones */
+  margin-top: 20px;
+}
+
+.item-card {
+  background-color: #6a4cc8aa;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  width: 200px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+  /* remove flex & align-self from here to allow natural height */
+}
+
+.item-card:hover {
+  transform: translateY(-5px);
+}
+
+.item-details {
+  margin-top: 10px;
+  /* optional: smooth appear animation */
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Added delete button styling */
+.delete-button {
+  background-color: #e63946;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 8px;
+}
+
+.delete-button:hover {
+  background-color: #d62828;
+}
