@@ -24,4 +24,22 @@ public class LocationController {
     public Location createLocation(@RequestBody Location newLocation) {
         return locationRepository.save(newLocation);
     }
+    // DELETE: Remove a location by ID
+    @DeleteMapping("/{id}")
+    public void deleteLocation(@PathVariable Long id) {
+        locationRepository.deleteById(id);
+    }
+
+    // PUT: Update an existing location
+    @PutMapping("/{id}")
+    public Location updateLocation(@PathVariable Long id, @RequestBody Location updatedLocation) {
+        Location existingLocation = locationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Location not found"));
+
+        existingLocation.setName(updatedLocation.getName());
+
+        return locationRepository.save(existingLocation);
+    }
+
+
 }
