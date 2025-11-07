@@ -1,10 +1,19 @@
 import { useState } from 'react';
 
-function Item({ item, onDelete }) {
+function Item({ item, onDelete, onEdit }) {
   const [showDetails, setShowDetails] = useState(false);
 
   return (
     <div className="item-card">
+      {/* ✏️ edit icon in the corner */}
+      <button
+        className="edit-icon"
+        title="Edit item"
+        onClick={() => onEdit(item)}
+      >
+        ✏️
+      </button>
+
       <h3>{item.name}</h3>
 
       {showDetails && (
@@ -14,19 +23,19 @@ function Item({ item, onDelete }) {
         </div>
       )}
 
-      <button 
+      <button
         className="details-button"
         onClick={() => setShowDetails(prev => !prev)}
       >
         {showDetails ? 'Hide Details' : 'View Details'}
       </button>
-      {/* New Delete Button */}
-        <button 
-          className="delete-button"
-          onClick={() => onDelete(item.id)}
-        >
-          Delete
-        </button>
+
+      <button
+        className="delete-button"
+        onClick={() => onDelete(item.id)}
+      >
+        Delete
+      </button>
     </div>
   );
 }
