@@ -28,10 +28,6 @@
   transform: translateY(-5px);
 }
 
-/* ========================== */
-/* ✨ Modal Styles (New) ✨ */
-/* ========================== */
-
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -43,21 +39,25 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  animation: fadeIn 0.25s ease-out;
 }
 
 .modal {
-  background: #fff;
+  background-color: #1e1e2f; /* matches dark purple theme backdrop */
+  color: #f5f5f5;
   padding: 2rem;
   border-radius: 12px;
   max-width: 420px;
   width: 90%;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
   text-align: left;
+  animation: fadeInUp 0.25s ease-out;
 }
 
 .modal h2 {
   margin-bottom: 1rem;
-  color: #4a3ca5;
+  color: #cbb8ff;
 }
 
 .modal input,
@@ -68,6 +68,14 @@
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 1rem;
+  background-color: #2a2a40;
+  color: #f5f5f5;
+}
+
+.modal input:focus,
+.modal textarea:focus {
+  outline: 2px solid #6a4cc8;
+  border-color: transparent;
 }
 
 .modal-buttons {
@@ -82,6 +90,7 @@
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
+  transition: all 0.2s;
 }
 
 .modal-buttons button[type="submit"] {
@@ -89,7 +98,28 @@
   color: white;
 }
 
+.modal-buttons button[type="submit"]:hover {
+  background: #8467d7;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
 .modal-buttons button[type="button"] {
   background: #ddd;
   color: #333;
+}
+
+.modal-buttons button[type="button"]:hover {
+  background: #ccc;
+}
+
+/* ✨ Fade animations ✨ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
