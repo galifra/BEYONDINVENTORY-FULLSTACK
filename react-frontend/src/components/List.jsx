@@ -5,53 +5,88 @@ import './List.css';
 
 function List({ items, setItems, searchTerm }) {
   const [editingItem, setEditingItem] = useState(null);
+  const [locations, setLocations] = useState([]); // <--- NEW
 
-  // 🔧 Normalize backend shape → frontend shape
+  // Normalize backend shape → frontend
   const normalizeItem = (item) => ({
     ...item,
-    location: typeof item.location === "object"
-      ? item.location.name
-      : item.location
+    location: item.location?.name || "" // show name only
   });
 
-  // 📡 Load items from backend on mount
+  // Load items + locations on mount
   useEffect(() => {
+    // load items
     fetch("http://localhost:8080/api/items")
       .then(res => res.json())
-      .then(data => {
-        console.log("Loaded items from backend:", data);
-
-        // Normalize all items
-        const normalized = data.map(normalizeItem);
-        setItems(normalized);
-      })
+      .then(data => setItems(data.map(normalizeItem)))
       .catch(err => console.error("Error fetching items:", err));
+
+    // load locations
+    fetch("http://localhost:8080/api/locations")
+      .then(res => res.json())
+      .then(data => setLocations(data))
+      .catch(err => console.error("Error fetching locations:", err));
   }, [setItems]);
 
-  // 🔍 Filter items by search term
+  // Filter items
   const filteredItems = Array.isArray(items)
-    ? items.filter(item =>
-        item?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    ? items.filter(i =>
+        i?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
-  // 🗑️ Delete handler (frontend only for now)
+  // Delete (frontend-only)
   const handleDelete = (id) => {
-    console.log("DELETE REQUEST FOR ID:", id);
-    setItems(prevItems => prevItems.filter(item => item.id !== id));
+    setItems(prev => prev.filter(item => item.id !== id));
   };
 
-  // 💾 Save edited item
-  const handleSaveItem = (updatedItem) => {
-    const normalized = normalizeItem(updatedItem); // ensure location is a string
+  // --- SAVE ITEM WITH CORRECT locationId ---
+  const handleSaveItem = async (updatedItem) => {
+    console.log("Saving updated item:", updatedItem);
 
-    setItems(prevItems =>
-      prevItems.map(item =>
-        item.id === normalized.id ? normalized : item
-      )
+    // Find locationId from name
+    const matched = locations.find(
+      (loc) => loc.name.toLowerCase() === updatedItem.location.toLowerCase()
     );
 
-    setEditingItem(null);
+    if (!matched) {
+      alert("Location does not exist. Please create it first.");
+      return;
+    }
+
+    const payload = {
+      name: updatedItem.name,
+      description: updatedItem.description,
+      locationId: matched.id,   // <--- THE GOLDEN FIX
+    };
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/items/${updatedItem.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to update");
+
+      const saved = await response.json();
+      const normalized = normalizeItem(saved);
+
+      // update UI
+      setItems(prev =>
+        prev.map(item =>
+          item.id === normalized.id ? normalized : item
+        )
+      );
+
+      setEditingItem(null);
+
+    } catch (err) {
+      console.error("Update error:", err);
+    }
   };
 
   return (
@@ -59,24 +94,20 @@ function List({ items, setItems, searchTerm }) {
       <h2>Your Items</h2>
 
       {filteredItems.length === 0 ? (
-        <p>No items found. Try searching something else or add new items!</p>
+        <p>No items found.</p>
       ) : (
         <div className="item-grid">
-          {filteredItems.map(item => {
-            console.log("ITEM DATA:", item);
-            return (
-              <Item
-                key={item.id}
-                item={item}
-                onDelete={handleDelete}
-                onEdit={setEditingItem}
-              />
-            );
-          })}
+          {filteredItems.map(item => (
+            <Item
+              key={item.id}
+              item={item}
+              onDelete={handleDelete}
+              onEdit={setEditingItem}
+            />
+          ))}
         </div>
       )}
 
-      {/* ✏️ Edit modal */}
       {editingItem && (
         <EditItemModal
           item={editingItem}
