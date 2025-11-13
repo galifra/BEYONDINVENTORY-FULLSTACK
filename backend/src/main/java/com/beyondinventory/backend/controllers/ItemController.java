@@ -18,7 +18,7 @@ public class ItemController {
     @Autowired
     private LocationRepository locationRepository;
 
-    // DTO (Data Transfer Object) for incoming request
+    // DTO (Data Transfer Object) for incoming POST request
     public static class CreateItemRequest {
         public String name;
         public String description;
@@ -39,32 +39,46 @@ public class ItemController {
                 .orElseThrow(() -> new RuntimeException("Location not found"));
 
         Item newItem = new Item(request.name, location, request.description);
-
         return itemRepository.save(newItem);
-
     }
+
     // DELETE: Remove an item by its ID
     @DeleteMapping("/{id}")
     public void deleteItem(@PathVariable Long id) {
         itemRepository.deleteById(id);
     }
 
-    // PUT: Update an existing item
+    // ⭐ NEW PUT: Update an existing item using frontend shape
     @PutMapping("/{id}")
-    public Item updateItem(@PathVariable Long id, @RequestBody CreateItemRequest request) {
+    public Item updateItem(@PathVariable Long id, @RequestBody Item updatedItem) {
 
+        // Find existing item
         Item existingItem = itemRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Item not found"));
 
-        Location location = locationRepository.findById(request.locationId)
-                .orElseThrow(() -> new RuntimeException("Location not found"));
+        // Update name & description
+        existingItem.setName(updatedItem.getName());
+        existingItem.setDescription(updatedItem.getDescription());
 
-        existingItem.setName(request.name);
-        existingItem.setDescription(request.description);
-        existingItem.setLocation(location);
+        // Handle location object sent from React:
+        // updatedItem.location.name
+        if (updatedItem.getLocation() != null && updatedItem.getLocation().getName() != null) {
+            String locationName = updatedItem.getLocation().getName();
 
+            // Try to find the location by name
+            Location location = locationRepository.findByName(locationName);
+
+            // If not found, create it
+            if (location == null) {
+                location = new Location();
+                location.setName(locationName);
+                location = locationRepository.save(location);
+            }
+
+            existingItem.setLocation(location);
+        }
+
+        // Save updated item
         return itemRepository.save(existingItem);
     }
-
-
 }
