@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import "./Item.css";
+
 
 function Item({ item, onDelete, onEdit }) {
   const [showDetails, setShowDetails] = useState(false);
 
   return (
     <div className="item-card">
-      {/* ✏️ edit icon in the corner */}
+      {/* ✏️ edit icon moved to top-right corner */}
       <button
         className="edit-icon"
         title="Edit item"

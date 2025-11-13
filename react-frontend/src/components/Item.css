@@ -16,17 +16,38 @@
   text-align: center;
   box-shadow: 0 4px 8px rgba(0,0,0,0.3);
   transition: transform 0.2s;
-  /* remove flex & align-self from here to allow natural height */
+  position: relative; /* allows absolute positioning of edit icon */
 }
 
 .item-card:hover {
   transform: translateY(-5px);
 }
 
+/* ✏️ Edit Icon Styling (fixed & minimal) */
+.item-card .edit-icon {
+  all: unset; /* <-- removes default white box, border, padding, shadows */
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  font-size: 1.3rem;
+  color: white;
+  cursor: pointer;
+
+  line-height: 1;
+  display: inline-block;
+
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.item-card .edit-icon:hover {
+  transform: scale(1.2);
+  color: #cbb8ff; /* soft glow hover effect */
+}
+
 .item-details {
   margin-top: 10px;
-  /* optional: smooth appear animation */
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn 0.2s ease; /* smooth appear animation */
 }
 
 @keyframes fadeIn {
@@ -34,7 +55,7 @@
   to   { opacity: 1; }
 }
 
-/* Added delete button styling */
+/* 🗑️ Delete Button Styling */
 .delete-button {
   background-color: #e63946;
   color: white;
