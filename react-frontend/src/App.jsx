@@ -18,7 +18,7 @@ import { useState, useEffect } from 'react';
 
 function App() {
   const [items, setItems] = useState([]);
-  const [locations, setLocations] = useState([]); // stores full location objects
+  const [locations, setLocations] = useState([]); // full location objects
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -58,7 +58,7 @@ function App() {
     setShowLoginModal(false);
   };
 
-  // ⭐ REAL addItem — sends to backend properly
+  // ⭐ UPDATED addItem — auto-creates location if missing
   const addItem = async (newItem) => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
@@ -66,16 +66,29 @@ function App() {
     }
 
     try {
-      const foundLocation = locations.find(
+      // 1. Check if the location exists
+      let foundLocation = locations.find(
         loc => loc.name.toLowerCase() === newItem.location.toLowerCase()
       );
 
+      // 2. If not → create new location automatically
       if (!foundLocation) {
-        alert("Location must exist before adding an item.");
-        return;
+        const locRes = await fetch("http://localhost:8080/api/locations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: newItem.location })
+        });
+
+        if (!locRes.ok) throw new Error("Failed to create new location");
+
+        foundLocation = await locRes.json();
+
+        // Update frontend list
+        setLocations(prev => [...prev, foundLocation]);
       }
 
-      const response = await fetch("http://localhost:8080/api/items", {
+      // 3. Create the item with the correct location ID
+      const itemRes = await fetch("http://localhost:8080/api/items", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -85,9 +98,9 @@ function App() {
         })
       });
 
-      if (!response.ok) throw new Error("Failed to save item");
+      if (!itemRes.ok) throw new Error("Failed to save item");
 
-      const saved = await response.json();
+      const saved = await itemRes.json();
 
       const normalized = {
         id: saved.id,
