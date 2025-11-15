@@ -9,11 +9,13 @@ function List({ items, setItems, searchTerm }) {
 
   // Normalize backend → frontend shape
   const normalizeItem = (item) => ({
-    ...item,
+    id: item.id,
+    name: item.name,
+    description: item.description,
     location: item.location?.name || "",
   });
 
-  // Load items and locations from backend
+  // Load items + locations from backend
   useEffect(() => {
     // Load items
     fetch("http://localhost:8080/api/items")
@@ -28,21 +30,33 @@ function List({ items, setItems, searchTerm }) {
       .catch((err) => console.error("Error fetching locations:", err));
   }, [setItems]);
 
-  // Filter by search
+  // Filter list
   const filteredItems = Array.isArray(items)
     ? items.filter((i) =>
         i?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
-  // Delete (frontend only)
-  const handleDelete = (id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  // DELETE (backend + frontend)
+  const handleDelete = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/items/${id}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) throw new Error("Failed to delete item");
+
+      // update UI
+      setItems((prev) => prev.filter((i) => i.id !== id));
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
-  // Save updated item (PUT)
+  // UPDATE ITEM (PUT + state update)
   const handleSaveItem = async (updatedItem) => {
-    // Find matching location
+    // Find matching location by NAME
     const matched = locations.find(
       (loc) =>
         loc.name.toLowerCase() === updatedItem.location.toLowerCase()
@@ -56,7 +70,7 @@ function List({ items, setItems, searchTerm }) {
     const payload = {
       name: updatedItem.name,
       description: updatedItem.description,
-      locationId: matched.id,
+      locationId: matched.id, // THIS is what backend wants
     };
 
     try {
@@ -74,7 +88,7 @@ function List({ items, setItems, searchTerm }) {
       const saved = await response.json();
       const normalized = normalizeItem(saved);
 
-      // Update UI
+      // update UI
       setItems((prev) =>
         prev.map((item) =>
           item.id === normalized.id ? normalized : item
