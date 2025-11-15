@@ -18,7 +18,7 @@ import { useState, useEffect } from 'react';
 
 function App() {
   const [items, setItems] = useState([]);
-  const [locations, setLocations] = useState([]);
+  const [locations, setLocations] = useState([]); // stores full location objects
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -29,12 +29,16 @@ function App() {
     fetch("http://localhost:8080/api/items")
       .then(res => res.json())
       .then(data => {
+        console.log("RAW ITEMS FROM BACKEND:", data);
+
         const normalized = data.map(i => ({
           id: i.id,
           name: i.name,
           description: i.description,
           location: i.location?.name || ""
         }));
+
+        console.log("NORMALIZED ITEMS:", normalized);
         setItems(normalized);
       })
       .catch(err => console.error("Error loading items:", err));
@@ -43,7 +47,8 @@ function App() {
     fetch("http://localhost:8080/api/locations")
       .then(res => res.json())
       .then(data => {
-        setLocations(data.map(loc => loc.name));
+        console.log("RAW LOCATIONS FROM BACKEND:", data);
+        setLocations(data); // KEEP FULL LOCATION OBJECTS
       })
       .catch(err => console.error("Error loading locations:", err));
   }, []);
@@ -53,25 +58,52 @@ function App() {
     setShowLoginModal(false);
   };
 
-  // Add item handler with login check
-  const addItem = (newItem) => {
+  // ⭐ REAL addItem — sends to backend properly
+  const addItem = async (newItem) => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
 
-    setItems((prevItems) => {
-      const updated = [...prevItems, { id: Date.now(), ...newItem }];
-      console.log("Items AFTER add:", updated);
-      return updated;
-    });
+    try {
+      const foundLocation = locations.find(
+        loc => loc.name.toLowerCase() === newItem.location.toLowerCase()
+      );
 
-    if (newItem.location && !locations.includes(newItem.location)) {
-      setLocations((prev) => [...prev, newItem.location]);
+      if (!foundLocation) {
+        alert("Location must exist before adding an item.");
+        return;
+      }
+
+      const response = await fetch("http://localhost:8080/api/items", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newItem.name,
+          description: newItem.description,
+          locationId: foundLocation.id
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to save item");
+
+      const saved = await response.json();
+
+      const normalized = {
+        id: saved.id,
+        name: saved.name,
+        description: saved.description,
+        location: saved.location.name
+      };
+
+      setItems(prev => [...prev, normalized]);
+
+    } catch (err) {
+      console.error("Error adding item:", err);
     }
   };
 
-  // Add location handler with backend POST
+  // ⭐ Add location to backend
   const handleAddLocation = async (newLocation) => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
@@ -82,16 +114,15 @@ function App() {
       const response = await fetch("http://localhost:8080/api/locations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newLocation }),
+        body: JSON.stringify({ name: newLocation })
       });
 
       if (!response.ok) throw new Error("Failed to save location");
 
       const saved = await response.json();
-      setLocations((prev) => [...prev, saved.name]);
+      setLocations(prev => [...prev, saved]);
 
       return true;
-
     } catch (err) {
       console.error("Error adding location:", err);
       return false;

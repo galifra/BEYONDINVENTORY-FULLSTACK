@@ -2,11 +2,19 @@ import { useParams } from 'react-router-dom';
 
 function LocationView({ items }) {
   const { name } = useParams();
-  const locationItems = items.filter(item => item.location === name);
+
+  // Decode URL, e.g. "Living%20Room" -> "Living Room"
+  const decodedName = decodeURIComponent(name);
+
+  // Match case-insensitive
+  const locationItems = items.filter(
+    item => item.location?.toLowerCase() === decodedName.toLowerCase()
+  );
 
   return (
     <div className="location-view">
-      <h2>Items in: {name}</h2>
+      <h2>Items in: {decodedName}</h2>
+
       {locationItems.length === 0 ? (
         <p>No items found in this location.</p>
       ) : (

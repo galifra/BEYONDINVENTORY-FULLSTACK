@@ -11,18 +11,22 @@ function Locations({ items, locations }) {
       <div className="location-grid">
         {locations.length === 0 && <p>No locations added yet.</p>}
 
-        {locations.map((loc, index) => {
-          const itemsHere = items.filter(item => item.location === loc);
+        {locations.map((loc) => {
+          // Loc is now an object: { id, name }
+          const itemsHere = items.filter(item => item.location === loc.name);
+
           const previewItems = itemsHere.slice(0, 3);
 
           return (
             <button
-              key={index}
+              key={loc.id}
               className="location-card"
-              onClick={() => navigate(`/location/${encodeURIComponent(loc)}`)}
+              onClick={() =>
+                navigate(`/location/${encodeURIComponent(loc.name)}`)
+              }
               type="button"
             >
-              <h3>{loc}</h3>
+              <h3>{loc.name}</h3>
 
               {itemsHere.length === 0 ? (
                 <p>No items stored here.</p>

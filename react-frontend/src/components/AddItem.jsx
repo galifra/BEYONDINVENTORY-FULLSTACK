@@ -8,7 +8,6 @@ function AddItem({ addItem, locations }) {
   const [description, setDescription] = useState('');
   const [useCustomLocation, setUseCustomLocation] = useState(false);
 
-  // 🔴 validation state
   const [nameError, setNameError] = useState('');
   const [locationError, setLocationError] = useState('');
 
@@ -17,7 +16,6 @@ function AddItem({ addItem, locations }) {
 
     let hasError = false;
 
-    // validate name
     if (!name.trim()) {
       setNameError('Item name is required.');
       hasError = true;
@@ -25,7 +23,6 @@ function AddItem({ addItem, locations }) {
       setNameError('');
     }
 
-    // validate location
     if (!location.trim()) {
       setLocationError('Location is required.');
       hasError = true;
@@ -35,14 +32,12 @@ function AddItem({ addItem, locations }) {
 
     if (hasError) return;
 
-    // ✅ Same shape as before
     addItem({
       name: name.trim(),
       location: location.trim(),
       description: description.trim(),
     });
 
-    // reset fields
     setName('');
     setLocation('');
     setDescription('');
@@ -50,8 +45,8 @@ function AddItem({ addItem, locations }) {
   };
 
   const handleToggleCustomLocation = () => {
-    setUseCustomLocation(prev => !prev);
-    setLocation(''); // reset when toggling
+    setUseCustomLocation(!useCustomLocation);
+    setLocation('');
     setLocationError('');
   };
 
@@ -67,15 +62,13 @@ function AddItem({ addItem, locations }) {
           value={name}
           onChange={(e) => {
             setName(e.target.value);
-            if (nameError && e.target.value.trim()) {
-              setNameError('');
-            }
+            if (nameError && e.target.value.trim()) setNameError('');
           }}
           className={nameError ? 'input-error' : ''}
         />
         {nameError && <p className="error-text">{nameError}</p>}
 
-        {/* LOCATION: select OR custom input */}
+        {/* LOCATION */}
         {useCustomLocation ? (
           <input
             type="text"
@@ -83,9 +76,7 @@ function AddItem({ addItem, locations }) {
             value={location}
             onChange={(e) => {
               setLocation(e.target.value);
-              if (locationError && e.target.value.trim()) {
-                setLocationError('');
-              }
+              if (locationError && e.target.value.trim()) setLocationError('');
             }}
             className={locationError ? 'input-error' : ''}
           />
@@ -94,18 +85,20 @@ function AddItem({ addItem, locations }) {
             value={location}
             onChange={(e) => {
               setLocation(e.target.value);
-              if (locationError && e.target.value.trim()) {
-                setLocationError('');
-              }
+              if (locationError && e.target.value.trim()) setLocationError('');
             }}
             className={locationError ? 'input-error' : ''}
           >
             <option value="">Select location</option>
-            {locations.map((loc, index) => (
-              <option key={index} value={loc}>{loc}</option>
+
+            {locations.map((loc) => (
+              <option key={loc.id} value={loc.name}>
+                {loc.name}
+              </option>
             ))}
           </select>
         )}
+
         {locationError && <p className="error-text">{locationError}</p>}
 
         {/* TOGGLE */}
