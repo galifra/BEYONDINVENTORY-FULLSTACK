@@ -13,7 +13,7 @@ function Locations({ items, locations }) {
 
         {locations.map((loc, index) => {
           const itemsHere = items.filter(item => item.location === loc);
-          const previewItems = itemsHere.slice(0, 3); // show up to 3 items as preview
+          const previewItems = itemsHere.slice(0, 3);
 
           return (
             <button
@@ -23,6 +23,7 @@ function Locations({ items, locations }) {
               type="button"
             >
               <h3>{loc}</h3>
+
               {itemsHere.length === 0 ? (
                 <p>No items stored here.</p>
               ) : (

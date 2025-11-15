@@ -1,52 +1,51 @@
-import { useState, useEffect } from 'react';
-import Item from './Item';
-import EditItemModal from './EditItemModal';
-import './List.css';
+import { useState, useEffect } from "react";
+import Item from "./Item";
+import EditItemModal from "./EditItemModal";
+import "./List.css";
 
 function List({ items, setItems, searchTerm }) {
   const [editingItem, setEditingItem] = useState(null);
-  const [locations, setLocations] = useState([]); // <--- NEW
+  const [locations, setLocations] = useState([]);
 
-  // Normalize backend shape → frontend
+  // Normalize backend → frontend shape
   const normalizeItem = (item) => ({
     ...item,
-    location: item.location?.name || "" // show name only
+    location: item.location?.name || "",
   });
 
-  // Load items + locations on mount
+  // Load items and locations from backend
   useEffect(() => {
-    // load items
+    // Load items
     fetch("http://localhost:8080/api/items")
-      .then(res => res.json())
-      .then(data => setItems(data.map(normalizeItem)))
-      .catch(err => console.error("Error fetching items:", err));
+      .then((res) => res.json())
+      .then((data) => setItems(data.map(normalizeItem)))
+      .catch((err) => console.error("Error fetching items:", err));
 
-    // load locations
+    // Load locations
     fetch("http://localhost:8080/api/locations")
-      .then(res => res.json())
-      .then(data => setLocations(data))
-      .catch(err => console.error("Error fetching locations:", err));
+      .then((res) => res.json())
+      .then((data) => setLocations(data))
+      .catch((err) => console.error("Error fetching locations:", err));
   }, [setItems]);
 
-  // Filter items
+  // Filter by search
   const filteredItems = Array.isArray(items)
-    ? items.filter(i =>
+    ? items.filter((i) =>
         i?.name?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
-  // Delete (frontend-only)
+  // Delete (frontend only)
   const handleDelete = (id) => {
-    setItems(prev => prev.filter(item => item.id !== id));
+    setItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // --- SAVE ITEM WITH CORRECT locationId ---
+  // Save updated item (PUT)
   const handleSaveItem = async (updatedItem) => {
-    console.log("Saving updated item:", updatedItem);
-
-    // Find locationId from name
+    // Find matching location
     const matched = locations.find(
-      (loc) => loc.name.toLowerCase() === updatedItem.location.toLowerCase()
+      (loc) =>
+        loc.name.toLowerCase() === updatedItem.location.toLowerCase()
     );
 
     if (!matched) {
@@ -57,7 +56,7 @@ function List({ items, setItems, searchTerm }) {
     const payload = {
       name: updatedItem.name,
       description: updatedItem.description,
-      locationId: matched.id,   // <--- THE GOLDEN FIX
+      locationId: matched.id,
     };
 
     try {
@@ -66,24 +65,23 @@ function List({ items, setItems, searchTerm }) {
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
         }
       );
 
-      if (!response.ok) throw new Error("Failed to update");
+      if (!response.ok) throw new Error("Failed to update item");
 
       const saved = await response.json();
       const normalized = normalizeItem(saved);
 
-      // update UI
-      setItems(prev =>
-        prev.map(item =>
+      // Update UI
+      setItems((prev) =>
+        prev.map((item) =>
           item.id === normalized.id ? normalized : item
         )
       );
 
       setEditingItem(null);
-
     } catch (err) {
       console.error("Update error:", err);
     }
@@ -97,7 +95,7 @@ function List({ items, setItems, searchTerm }) {
         <p>No items found.</p>
       ) : (
         <div className="item-grid">
-          {filteredItems.map(item => (
+          {filteredItems.map((item) => (
             <Item
               key={item.id}
               item={item}

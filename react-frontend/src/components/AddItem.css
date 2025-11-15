@@ -50,3 +50,14 @@
 .add-item button:hover {
   background-color: #2b6cb0;
 }
+
+.input-error {
+  border: 2px solid #ff6b6b !important;
+}
+
+.error-text {
+  color: #ff6b6b;
+  margin-top: -6px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
